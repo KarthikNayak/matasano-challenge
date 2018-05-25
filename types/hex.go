@@ -1,15 +1,17 @@
-package hex
+package types
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
+
+type Hex struct {
+	S string
+}
 
 // 0 -> 48, 1 -> 49 ... 9 -> 57
 // a -> 97, b -> 98, c -> 99, d -> 100, e -> 101, f -> 102
 // A -> 65, B -> 66, C -> 67, D -> 68, E -> 69, F -> 70
-
 
 // parseHex returns the absolute value given a hex character.
 // parseHex works with upper and lower case characters (a-fA-F).
@@ -23,7 +25,7 @@ func parseHex(hex byte) (int, error) {
 		return val - 55, nil
 	}
 
-	return 0, errors.New(fmt.Sprintf("Invalid hex character received: %v", hex))
+	return 0, errors.New(fmt.Sprintf("invalid hex character received: %v", hex))
 }
 
 // parseByte is the opposite of parseHex, parseByte converts the given byte to its corresponding hex character.
@@ -36,44 +38,52 @@ func parseByte(b byte) (byte, error) {
 	} else if val < 16 {
 		return byte(val + 55), nil
 	}
-	return 0, errors.New(fmt.Sprintf("Byte cannot be parsed to hex: %v", b))
+	return 0, errors.New(fmt.Sprintf("nyte cannot be parsed to hex: %v", b))
 }
 
-// HexToByte converts a given hex string to a byte list.
-func HexToByte(hex string) ([]byte, error) {
-	val := make([]byte, len(hex)/2)
+func (h *Hex) Set(s string) {
+	h.S = s
+}
 
-	for i := 0; i < len(hex); i += 2 {
-		a, err := parseHex(byte(hex[i]))
+func (h *Hex) Get() string {
+	return h.S
+}
+
+func (h *Hex) Decode() (string, error) {
+	val := ""
+
+	for i := 0; i < len(h.S); i += 2 {
+		a, err := parseHex(h.S[i])
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		if i + 1 >= len(hex) {
-			return nil, errors.New("Hex array length is odd")
+		if i + 1 >= len(h.S) {
+			return "", errors.New("hex array length is odd")
 		}
-		b, err := parseHex(byte(hex[i + 1]))
+		b, err := parseHex(h.S[i + 1])
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		val[i/2] = byte(a << 4 | b)
+		val = val + string(a << 4 | b)
 	}
 
 	return val, nil
 }
 
-// ByteToHex converts a given byte list to the corresponding hex string.
-func ByteToHex(val []byte) (string, error) {
-	var hex string
-	for _, h := range val {
-		firstHex, err := parseByte(h >> 4)
+func (h *Hex) Encode(b string) (error) {
+	h.S = ""
+	for _, c := range b {
+		firstHex, err := parseByte(byte(c) >> 4)
 		if err != nil {
-			return "", err
+			return err
 		}
-		secondHex, err := parseByte(h & 0x0f)
+
+		secondHex, err := parseByte(byte(c) & 0x0f)
 		if err != nil {
-			return "", err
+			return err
 		}
-		hex = hex + string(firstHex) + string(secondHex)
+		h.S = h.S + string(firstHex) + string(secondHex)
 	}
-	return hex, nil
+	return nil
 }
+

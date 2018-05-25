@@ -1,11 +1,13 @@
-package base64
+package types
 
 import (
 	"fmt"
 	"strconv"
-
-	"gitlab.com/karthiknayak/matasano/hex"
 )
+
+type Base64 struct {
+	S string
+}
 
 var base64Map = map[int64]string{
 	0:  "A", 16: "Q", 32: "g", 48: "w",
@@ -45,37 +47,39 @@ var base64RevMap = map[string]int64{
 	"P": 15, "f": 31, "v": 47, "/": 63,
 }
 
-func FromHex(h string) (string, error) {
-	b, err := hex.HexToByte(h)
-	if err != nil {
-		return "", err
+func (b64 *Base64) Set(s string) {
+	b64.S = s
+}
+
+func (b64 *Base64) Get() string {
+	return b64.S
+}
+
+func (b64 *Base64) Decode() (string, error) {
+	var binary string
+	for _, c := range b64.S {
+		binary = binary + fmt.Sprintf("%.8b", base64RevMap[string(c)])[2:]
 	}
 
+	var b string
+	for i := 0; i < len(binary); i = i + 8 {
+		val, _ := strconv.ParseInt(binary[i: i + 8], 2, 64)
+		b = b + string(val)
+	}
+	return b, nil
+}
+
+func (b64 *Base64) Encode(b string) (error) {
 	var binary string
 	for _, c := range b {
 		binary = fmt.Sprintf("%s%.8b", binary, c)
 	}
 
-	var output string
+	b64.S = ""
 	for i := 0; i < len(binary); i = i + 6 {
 		base6 := binary[i : i+6]
 		mappedValue, _ := strconv.ParseInt(base6, 2, 64)
-		output = output + base64Map[mappedValue]
+		b64.S = b64.S + base64Map[mappedValue]
 	}
-	return output, nil
-}
-
-func ToHex(base64 string) (string, error) {
-	var binary string
-	for _, c := range base64 {
-		binary = binary + fmt.Sprintf("%.8b", base64RevMap[string(c)])[2:]
-	}
-
-	b := make([]byte, len(binary)/8)
-	for i := 0; i < len(binary); i = i + 8 {
-		val, _ := strconv.ParseInt(binary[i: i + 8], 2, 64)
-		b[i/8] = byte(val)
-	}
-
-	return hex.ByteToHex(b)
+	return nil
 }
