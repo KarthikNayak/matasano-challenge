@@ -5,10 +5,10 @@ import (
 	"gitlab.com/karthiknayak/matasano/types"
 )
 
-func SingleByteXOR(c types.Cipher, f frequency.Frequency) (string, error) {
+func SingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, error) {
 	s, err := c.Decode()
 	if err != nil {
-		return "", err
+		return "", 0.0, err
 	}
 	maxScore := 0.0
 	FinalString := ""
@@ -23,5 +23,5 @@ func SingleByteXOR(c types.Cipher, f frequency.Frequency) (string, error) {
 			FinalString = string(tmp)
 		}
 	}
-	return FinalString, nil
+	return FinalString, maxScore, nil
 }
