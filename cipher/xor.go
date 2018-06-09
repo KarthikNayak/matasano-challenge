@@ -1,11 +1,13 @@
 package cipher
 
 import (
+	"reflect"
+
 	"gitlab.com/karthiknayak/matasano/metrics/frequency"
 	"gitlab.com/karthiknayak/matasano/types"
 )
 
-func SingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, error) {
+func DecodeSingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, error) {
 	s, err := c.Decode()
 	if err != nil {
 		return "", 0.0, err
@@ -24,4 +26,22 @@ func SingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, erro
 		}
 	}
 	return FinalString, maxScore, nil
+}
+
+func RepeatingXorEncode(c types.Cipher, key string) (string, error) {
+	cipherType := reflect.ValueOf(c)
+	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Cipher)
+
+	s, err := c.Decode()
+	if err != nil {
+		return "", err
+	}
+
+	outputBytes := make([]byte, len(s))
+	keyLength := len(key)
+	for i, val := range s {
+		outputBytes[i] = byte(val) ^ key[int(i) % keyLength]
+	}
+	output.Encode(string(outputBytes))
+	return output.Get(), nil
 }

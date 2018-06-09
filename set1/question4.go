@@ -16,7 +16,7 @@ func SolveQ4(scanner *bufio.Scanner) (string, error) {
 	for scanner.Scan() {
 		h := types.Hex{S: scanner.Text()}
 		f := frequency.CharacterFrequency{}
-		s, score, err := cipher.SingleByteXOR(&h, &f)
+		s, score, err := cipher.DecodeSingleByteXOR(&h, &f)
 		if err != nil {
 			return "", err
 		}

@@ -9,6 +9,6 @@ import (
 func SolveQ3(s string) (string, error) {
 	h := types.Hex{S: s}
 	f := frequency.CharacterFrequency{}
-	s, _, err := cipher.SingleByteXOR(&h, &f)
+	s, _, err := cipher.DecodeSingleByteXOR(&h, &f)
 	return s, err
 }
