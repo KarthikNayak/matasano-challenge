@@ -16,7 +16,19 @@ func TestBase64_Decode(t *testing.T) {
 			"SGVsbG8gdGhlcmUh",
 			"Hello there!",
 			nil,
-			"Simple Text to hex",
+			"Test 1",
+		},
+		{
+			"YW55IGNhcm5hbCBwbGVhcw==",
+			"any carnal pleas",
+			nil,
+			"Test 2",
+		},
+		{
+			"YW55IGNhcm5hbCBwbGVhc3U=",
+			"any carnal pleasu",
+			nil,
+			"Test 3",
 		},
 	}
 	for _, test := range tests {

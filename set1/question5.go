@@ -9,5 +9,5 @@ func SolveQ5(input, key string) (string, error) {
 	h := types.Hex{}
 	h.Encode(input)
 
-	return cipher.RepeatingXorEncode(&h, key)
+	return cipher.EncodeRepeatingXor(&h, key)
 }

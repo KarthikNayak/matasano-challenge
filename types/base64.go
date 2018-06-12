@@ -47,8 +47,9 @@ var base64RevMap = map[string]int64{
 	"P": 15, "f": 31, "v": 47, "/": 63,
 }
 
-func (b64 *Base64) Set(s string) {
+func (b64 *Base64) Set(s string) Cipher {
 	b64.S = s
+	return b64
 }
 
 func (b64 *Base64) Get() string {
@@ -58,11 +59,17 @@ func (b64 *Base64) Get() string {
 func (b64 *Base64) Decode() (string, error) {
 	var binary string
 	for _, c := range b64.S {
+		if c == '=' {
+			break
+		}
 		binary = binary + fmt.Sprintf("%.8b", base64RevMap[string(c)])[2:]
 	}
 
 	var b string
 	for i := 0; i < len(binary); i = i + 8 {
+		if len(binary) - i < 8 {
+			break
+		}
 		val, _ := strconv.ParseInt(binary[i: i + 8], 2, 64)
 		b = b + string(val)
 	}
