@@ -1,9 +1,9 @@
 package set1
 
 import (
-	"gitlab.com/karthiknayak/matasano/cipher"
-	"gitlab.com/karthiknayak/matasano/metrics/frequency"
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/cipher"
+	"matasano/metrics/frequency"
+	"matasano/types"
 )
 
 func SolveQ3(b []byte) (string, error) {

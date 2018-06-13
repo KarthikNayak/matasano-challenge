@@ -1,8 +1,8 @@
 package operations
 
 import (
-	"github.com/pkg/errors"
-	"gitlab.com/karthiknayak/matasano/types"
+	"errors"
+	"matasano/types"
 )
 
 func HammingDistance(a, b types.Cipher) (int, error) {
@@ -30,4 +30,3 @@ func HammingDistance(a, b types.Cipher) (int, error) {
 	}
 	return hDistance, nil
 }
-

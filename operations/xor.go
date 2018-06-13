@@ -3,8 +3,8 @@ package operations
 import (
 	"reflect"
 
-	"github.com/pkg/errors"
-	"gitlab.com/karthiknayak/matasano/types"
+	"errors"
+	"matasano/types"
 )
 
 func Xor(a, b types.Cipher) (types.Cipher, error) {

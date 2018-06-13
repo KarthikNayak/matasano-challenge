@@ -1,13 +1,11 @@
 package set1
 
 import (
-"bufio"
+	"bufio"
 
-
-"gitlab.com/karthiknayak/matasano/cipher"
-"gitlab.com/karthiknayak/matasano/metrics/frequency"
-"gitlab.com/karthiknayak/matasano/types"
-
+	"matasano/cipher"
+	"matasano/metrics/frequency"
+	"matasano/types"
 )
 
 func SolveQ4(scanner *bufio.Scanner) (string, error) {

@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"gitlab.com/karthiknayak/matasano/cipher"
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/cipher"
+	"matasano/types"
 )
 
 func SolveQ6(fileName string) (string, error) {

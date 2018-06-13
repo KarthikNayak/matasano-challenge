@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/types"
 )
 
 func SolveQ8(fileName string) bool {
@@ -26,7 +26,7 @@ func SolveQ8(fileName string) bool {
 
 	count := 0
 	for scanner.Scan() {
-		count += 1
+		count++
 		h := types.Hex{B: []byte(scanner.Text())}
 		decoded, err := h.Decode()
 		if err != nil {
@@ -34,7 +34,7 @@ func SolveQ8(fileName string) bool {
 		}
 
 		for i := 0; i < len(decoded); i += 16 {
-			for j := i+16 ; j <len(decoded); j += 16 {
+			for j := i + 16; j < len(decoded); j += 16 {
 				if bytes.Compare(decoded[i:i+16], decoded[j:j+16]) == 0 {
 					tmp := make([]byte, len(decoded))
 					block.Decrypt(tmp, decoded)

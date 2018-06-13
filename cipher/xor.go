@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"sort"
 
-	"gitlab.com/karthiknayak/matasano/metrics/frequency"
-	"gitlab.com/karthiknayak/matasano/operations"
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/metrics/frequency"
+	"matasano/operations"
+	"matasano/types"
 )
 
 func DecodeSingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, error) {
@@ -42,40 +42,39 @@ func EncodeRepeatingXor(c types.Cipher, key []byte) ([]byte, error) {
 	outputBytes := make([]byte, len(s))
 	keyLength := len(key)
 	for i, val := range s {
-		outputBytes[i] = byte(val) ^ key[int(i) % keyLength]
+		outputBytes[i] = byte(val) ^ key[int(i)%keyLength]
 	}
 	output.Encode(outputBytes)
 	return output.Get(), nil
 }
 
-
-const KEYSIZE_MIN = 2
-const KEYSIZE_MAX = 40
-const BLOCKS = 10
+const KeySizeMin = 2
+const KeySizeMax = 40
+const Blocks = 10
 
 type kv struct {
-	keysize int
+	keysize   int
 	hdistance float64
 }
 
 func getKeySizesSorted(b []byte) ([]kv, error) {
 	var data []kv
 
-	for keysize := KEYSIZE_MIN; keysize <= KEYSIZE_MAX; keysize++ {
-		blocks := make([][]byte, BLOCKS)
+	for keysize := KeySizeMin; keysize <= KeySizeMax; keysize++ {
+		blocks := make([][]byte, Blocks)
 		for i := range blocks {
 			blocks[i] = make([]byte, keysize)
 			copy(blocks[i], b[i*keysize:i*keysize+keysize])
 		}
 		hDist := 0.0
-		for i := 0; i < BLOCKS - 1; i += 1 {
-			dist, err := operations.HammingDistance(types.Bytes(blocks[i]), types.Bytes(blocks[i + 1]))
+		for i := 0; i < Blocks-1; i += 1 {
+			dist, err := operations.HammingDistance(types.Bytes(blocks[i]), types.Bytes(blocks[i+1]))
 			if err != nil {
 				return data, err
 			}
 			hDist += float64(dist)
 		}
-		hDist = float64(hDist) / (float64(keysize) * float64(BLOCKS - 1))
+		hDist = float64(hDist) / (float64(keysize) * float64(Blocks-1))
 		data = append(data, kv{keysize, hDist})
 	}
 	sort.Slice(data, func(i, j int) bool {
@@ -84,10 +83,10 @@ func getKeySizesSorted(b []byte) ([]kv, error) {
 	return data, nil
 }
 
-func createBuckets(b []byte, size int) ([][]byte) {
+func createBuckets(b []byte, size int) [][]byte {
 	buckets := make([][]byte, size)
 	for i := 0; i < size; i++ {
-		buckets[i] = make([]byte, len(b)/size + 1)
+		buckets[i] = make([]byte, len(b)/size+1)
 	}
 	for i, val := range b {
 		buckets[i%size][i/size] = val

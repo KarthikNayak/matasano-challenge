@@ -3,13 +3,13 @@ package operations
 import (
 	"testing"
 
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/types"
 )
 
 func Test(t *testing.T) {
 	tests := []struct {
-		name string
-		a, b string
+		name     string
+		a, b     string
 		distance int
 	}{
 		{
@@ -37,4 +37,3 @@ func Test(t *testing.T) {
 		})
 	}
 }
-

@@ -1,10 +1,10 @@
 package set1
 
 import (
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/types"
 )
 
-func SolveQ1(h []byte) ([]byte, error){
+func SolveQ1(h []byte) ([]byte, error) {
 	hex := types.Hex{B: h}
 	b, err := hex.Decode()
 	if err != nil {

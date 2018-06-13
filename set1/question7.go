@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/types"
 )
 
 func SolveQ7(fileName string) (string, error) {
@@ -15,7 +15,7 @@ func SolveQ7(fileName string) (string, error) {
 		log.Fatal(err)
 	}
 
-	b64 := types.Base64{ B: content}
+	b64 := types.Base64{B: content}
 	data, err := b64.Decode()
 	if err != nil {
 		log.Fatal(err)

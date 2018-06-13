@@ -1,8 +1,8 @@
 package set1
 
 import (
-	"gitlab.com/karthiknayak/matasano/operations"
-	"gitlab.com/karthiknayak/matasano/types"
+	"matasano/operations"
+	"matasano/types"
 )
 
 func SolveQ2(a, b []byte) (string, error) {
