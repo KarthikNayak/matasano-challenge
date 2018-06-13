@@ -1,8 +1,8 @@
 package types
 
 type Cipher interface {
-	Set(s string) (Cipher)
-	Get() string
-	Decode() (string, error)
-	Encode(b string) (error)
+	Set(b []byte) (Cipher)
+	Get() []byte
+	Decode() ([]byte, error)
+	Encode(b []byte) (error)
 }

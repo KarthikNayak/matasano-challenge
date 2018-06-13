@@ -6,7 +6,7 @@ import (
 )
 
 type Base64 struct {
-	S string
+	B []byte
 }
 
 var base64Map = map[int64]string{
@@ -47,46 +47,48 @@ var base64RevMap = map[string]int64{
 	"P": 15, "f": 31, "v": 47, "/": 63,
 }
 
-func (b64 *Base64) Set(s string) Cipher {
-	b64.S = s
+func (b64 *Base64) Set(b []byte) Cipher {
+	b64.B = b
 	return b64
 }
 
-func (b64 *Base64) Get() string {
-	return b64.S
+func (b64 *Base64) Get() []byte {
+	return b64.B
 }
 
-func (b64 *Base64) Decode() (string, error) {
+func (b64 *Base64) Decode() ([]byte, error) {
 	var binary string
-	for _, c := range b64.S {
+	for _, c := range b64.B {
 		if c == '=' {
 			break
 		}
 		binary = binary + fmt.Sprintf("%.8b", base64RevMap[string(c)])[2:]
 	}
 
-	var b string
+	var b []byte
 	for i := 0; i < len(binary); i = i + 8 {
 		if len(binary) - i < 8 {
 			break
 		}
 		val, _ := strconv.ParseInt(binary[i: i + 8], 2, 64)
-		b = b + string(val)
+		b = append(b, byte(val))
 	}
 	return b, nil
 }
 
-func (b64 *Base64) Encode(b string) (error) {
+func (b64 *Base64) Encode(b []byte) (error) {
 	var binary string
 	for _, c := range b {
 		binary = fmt.Sprintf("%s%.8b", binary, c)
 	}
 
-	b64.S = ""
 	for i := 0; i < len(binary); i = i + 6 {
 		base6 := binary[i : i+6]
 		mappedValue, _ := strconv.ParseInt(base6, 2, 64)
-		b64.S = b64.S + base64Map[mappedValue]
+		for _, elem := range base64Map[mappedValue] {
+			b64.B = append(b64.B, byte(elem))
+		}
+
 	}
 	return nil
 }

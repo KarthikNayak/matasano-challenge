@@ -30,13 +30,13 @@ func DecodeSingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64
 	return FinalString, maxScore, nil
 }
 
-func EncodeRepeatingXor(c types.Cipher, key string) (string, error) {
+func EncodeRepeatingXor(c types.Cipher, key []byte) ([]byte, error) {
 	cipherType := reflect.ValueOf(c)
 	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Cipher)
 
 	s, err := c.Decode()
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
 	outputBytes := make([]byte, len(s))
@@ -44,7 +44,7 @@ func EncodeRepeatingXor(c types.Cipher, key string) (string, error) {
 	for i, val := range s {
 		outputBytes[i] = byte(val) ^ key[int(i) % keyLength]
 	}
-	output.Encode(string(outputBytes))
+	output.Encode(outputBytes)
 	return output.Get(), nil
 }
 
@@ -58,14 +58,14 @@ type kv struct {
 	hdistance float64
 }
 
-func getKeySizesSorted(s string) ([]kv, error) {
+func getKeySizesSorted(b []byte) ([]kv, error) {
 	var data []kv
 
 	for keysize := KEYSIZE_MIN; keysize <= KEYSIZE_MAX; keysize++ {
 		blocks := make([][]byte, BLOCKS)
 		for i := range blocks {
 			blocks[i] = make([]byte, keysize)
-			copy(blocks[i], s[i*keysize:i*keysize+keysize])
+			copy(blocks[i], b[i*keysize:i*keysize+keysize])
 		}
 		hDist := 0.0
 		for i := 0; i < BLOCKS - 1; i += 1 {
@@ -84,13 +84,13 @@ func getKeySizesSorted(s string) ([]kv, error) {
 	return data, nil
 }
 
-func createBuckets(s string, size int) ([][]byte) {
+func createBuckets(b []byte, size int) ([][]byte) {
 	buckets := make([][]byte, size)
 	for i := 0; i < size; i++ {
-		buckets[i] = make([]byte, len(s)/size + 1)
+		buckets[i] = make([]byte, len(b)/size + 1)
 	}
-	for i, val := range s {
-		buckets[i%size][i/size] = byte(val)
+	for i, val := range b {
+		buckets[i%size][i/size] = val
 	}
 	return buckets
 }

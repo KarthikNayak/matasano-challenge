@@ -9,7 +9,7 @@ func TestSolveQ2(t *testing.T) {
 	h2 := "686974207468652062756c6c277320657965"
 	expectedOutput := "746865206B696420646F6E277420706C6179"
 
-	output, err := SolveQ2(h1, h2)
+	output, err := SolveQ2([]byte(h1), []byte(h2))
 	if err != nil {
 		t.Errorf("Got an unexpected error %v", err)
 	}

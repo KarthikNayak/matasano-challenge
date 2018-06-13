@@ -13,6 +13,6 @@ func SolveQ6(fileName string) (string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	b := types.Base64{S: string(content)}
+	b := types.Base64{B: content}
 	return cipher.DecodeRepeatingXor(&b)
 }

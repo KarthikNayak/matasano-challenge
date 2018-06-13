@@ -28,6 +28,6 @@ func Xor(a, b types.Cipher) (types.Cipher, error) {
 	for i := range aDecoded {
 		outputBytes[i] = aDecoded[i] ^ bDecoded[i]
 	}
-	output.Encode(string(outputBytes))
+	output.Encode(outputBytes)
 	return output, nil
 }

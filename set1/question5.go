@@ -5,7 +5,7 @@ import (
 	"gitlab.com/karthiknayak/matasano/types"
 )
 
-func SolveQ5(input, key string) (string, error) {
+func SolveQ5(input, key []byte) ([]byte, error) {
 	h := types.Hex{}
 	h.Encode(input)
 

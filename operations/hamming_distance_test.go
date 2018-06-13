@@ -22,9 +22,9 @@ func Test(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			h1 := types.Hex{}
-			h1.Encode(test.a)
+			h1.Encode([]byte(test.a))
 			h2 := types.Hex{}
-			h2.Encode(test.b)
+			h2.Encode([]byte(test.b))
 
 			distance, err := HammingDistance(&h1, &h2)
 			if err != nil {

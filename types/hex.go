@@ -6,7 +6,7 @@ import (
 )
 
 type Hex struct {
-	S string
+	B []byte
 }
 
 // 0 -> 48, 1 -> 49 ... 9 -> 57
@@ -41,38 +41,37 @@ func parseByte(b byte) (byte, error) {
 	return 0, errors.New(fmt.Sprintf("nyte cannot be parsed to hex: %v", b))
 }
 
-func (h *Hex) Set(s string) Cipher {
-	h.S = s
+func (h *Hex) Set(b []byte) Cipher {
+	h.B = b
 	return h
 }
 
-func (h *Hex) Get() string {
-	return h.S
+func (h *Hex) Get() []byte {
+	return h.B
 }
 
-func (h *Hex) Decode() (string, error) {
-	val := ""
+func (h *Hex) Decode() ([]byte, error) {
+	var val []byte
 
-	for i := 0; i < len(h.S); i += 2 {
-		a, err := parseHex(h.S[i])
+	for i := 0; i < len(h.B); i += 2 {
+		a, err := parseHex(h.B[i])
 		if err != nil {
-			return "", err
+			return val, err
 		}
-		if i + 1 >= len(h.S) {
-			return "", errors.New("hex array length is odd")
+		if i + 1 >= len(h.B) {
+			return val, errors.New("hex array length is odd")
 		}
-		b, err := parseHex(h.S[i + 1])
+		b, err := parseHex(h.B[i + 1])
 		if err != nil {
-			return "", err
+			return val, err
 		}
-		val = val + string(a << 4 | b)
+		val = append(val, byte(a << 4 | b))
 	}
 
 	return val, nil
 }
 
-func (h *Hex) Encode(b string) (error) {
-	h.S = ""
+func (h *Hex) Encode(b []byte) (error) {
 	for _, c := range b {
 		firstHex, err := parseByte(byte(c) >> 4)
 		if err != nil {
@@ -83,7 +82,7 @@ func (h *Hex) Encode(b string) (error) {
 		if err != nil {
 			return err
 		}
-		h.S = h.S + string(firstHex) + string(secondHex)
+		h.B = append(h.B, firstHex, secondHex)
 	}
 	return nil
 }

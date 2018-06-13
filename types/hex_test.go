@@ -29,13 +29,12 @@ func TestHex_Decode(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			hex := Hex{S: test.hex}
+			hex := Hex{B: []byte(test.hex)}
 			output, err := hex.Decode()
-			if output != test.decoded {
-				t.Errorf("Expected output: %v output recieved: %v", test.decoded, output)
-			}
 			if (err != nil) != (test.err != nil) {
 				t.Errorf("Expected error: %v error recieved: %v", test.err, err)
+			} else if err == nil && string(output) != test.decoded {
+				t.Errorf("Expected output: %v output recieved: %v", test.decoded, output)
 			}
 		})
 	}
@@ -58,9 +57,9 @@ func TestHex_Encode(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			hex := Hex{}
-			err := hex.Encode(test.s)
-			if !strings.EqualFold(hex.S, test.encoded) {
-				t.Errorf("Expected output: %v output recieved: %v", test.encoded, hex.S)
+			err := hex.Encode([]byte(test.s))
+			if !strings.EqualFold(string(hex.B), test.encoded) {
+				t.Errorf("Expected output: %v output recieved: %v", test.encoded, string(hex.B))
 			}
 			if (err != nil) != (test.err != nil) {
 				t.Errorf("Expected error: %v error recieved: %v", test.err, err)

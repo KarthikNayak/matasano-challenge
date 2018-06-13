@@ -20,8 +20,8 @@ I go crazy when I hear a cymbal`,
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			xorKey := "ICE"
-			s, err := SolveQ5(test.input, xorKey)
-			if s != test.output {
+			s, err := SolveQ5([]byte(test.input), []byte(xorKey))
+			if string(s) != test.output {
 				t.Errorf("Expected output: %v obtained output: %v", test.output, s)
 			}
 			if err != nil {
