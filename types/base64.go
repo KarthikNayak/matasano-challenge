@@ -47,7 +47,7 @@ var base64RevMap = map[string]int64{
 	"P": 15, "f": 31, "v": 47, "/": 63,
 }
 
-func (b64 *Base64) Set(b []byte) Cipher {
+func (b64 *Base64) Set(b []byte) Type {
 	b64.B = b
 	return b64
 }

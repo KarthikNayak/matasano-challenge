@@ -1,4 +1,4 @@
-package operations
+package helpers
 
 import (
 	"reflect"
@@ -7,9 +7,9 @@ import (
 	"matasano/types"
 )
 
-func Xor(a, b types.Cipher) (types.Cipher, error) {
+func Xor(a, b types.Type) (types.Type, error) {
 	cipherType := reflect.ValueOf(a)
-	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Cipher)
+	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Type)
 
 	if len(a.Get()) != len(b.Get()) {
 		return output, errors.New("The two ciphers have different length")

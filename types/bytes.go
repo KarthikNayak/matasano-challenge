@@ -2,7 +2,7 @@ package types
 
 type Bytes []byte
 
-func (b Bytes) Set(bytes []byte) (Cipher) {
+func (b Bytes) Set(bytes []byte) (Type) {
 	return b
 }
 

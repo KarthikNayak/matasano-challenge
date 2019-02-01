@@ -1,11 +1,11 @@
-package operations
+package helpers
 
 import (
 	"errors"
 	"matasano/types"
 )
 
-func HammingDistance(a, b types.Cipher) (int, error) {
+func HammingDistance(a, b types.Type) (int, error) {
 	s1, err := a.Decode()
 	if err != nil {
 		return 0, err

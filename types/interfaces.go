@@ -1,7 +1,7 @@
 package types
 
-type Cipher interface {
-	Set(b []byte) (Cipher)
+type Type interface {
+	Set(b []byte) (Type)
 	Get() []byte
 	Decode() ([]byte, error)
 	Encode(b []byte) (error)

@@ -41,7 +41,7 @@ func parseByte(b byte) (byte, error) {
 	return 0, errors.New(fmt.Sprintf("nyte cannot be parsed to hex: %v", b))
 }
 
-func (h *Hex) Set(b []byte) Cipher {
+func (h *Hex) Set(b []byte) Type {
 	h.B = b
 	return h
 }

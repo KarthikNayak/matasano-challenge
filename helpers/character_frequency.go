@@ -1,8 +1,8 @@
-package frequency
+package helpers
 
 const correction = 5
 
-var frequencyMap = map[rune]float64 {
+var frequencyMap = map[rune]float64{
 	'a': 8.167, 'A': 8.167,
 	'b': 1.492, 'B': 1.492,
 	'c': 2.782, 'C': 2.782,
@@ -32,10 +32,7 @@ var frequencyMap = map[rune]float64 {
 	' ': 0.0,
 }
 
-type CharacterFrequency struct {
-}
-
-func (c *CharacterFrequency) GetFrequency(b []byte) float64 {
+func CharacterFrequency(b []byte) float64 {
 	sum := 0.0
 	for _, r := range b {
 		if val, ok := frequencyMap[rune(r)]; ok {

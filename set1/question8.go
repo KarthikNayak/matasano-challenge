@@ -3,7 +3,6 @@ package set1
 import (
 	"bufio"
 	"bytes"
-	"crypto/aes"
 	"log"
 	"os"
 
@@ -19,11 +18,6 @@ func SolveQ8(fileName string) bool {
 
 	scanner := bufio.NewScanner(file)
 
-	block, err := aes.NewCipher([]byte("YELLOW SUBMARINE"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	count := 0
 	for scanner.Scan() {
 		count++
@@ -36,8 +30,6 @@ func SolveQ8(fileName string) bool {
 		for i := 0; i < len(decoded); i += 16 {
 			for j := i + 16; j < len(decoded); j += 16 {
 				if bytes.Compare(decoded[i:i+16], decoded[j:j+16]) == 0 {
-					tmp := make([]byte, len(decoded))
-					block.Decrypt(tmp, decoded)
 					return true
 				}
 			}

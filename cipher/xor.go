@@ -4,49 +4,9 @@ import (
 	"reflect"
 	"sort"
 
-	"matasano/metrics/frequency"
-	"matasano/operations"
+	"matasano/helpers"
 	"matasano/types"
 )
-
-func DecodeSingleByteXOR(c types.Cipher, f frequency.Frequency) (string, float64, error) {
-	s, err := c.Decode()
-	if err != nil {
-		return "", 0.0, err
-	}
-	maxScore := 0.0
-	FinalString := ""
-	tmp := make([]byte, len(s))
-	for i := 0; i < 255; i++ {
-		for j, v := range s {
-			tmp[j] = byte(v) ^ byte(i)
-		}
-		score := f.GetFrequency(tmp)
-		if score > maxScore {
-			maxScore = score
-			FinalString = string(tmp)
-		}
-	}
-	return FinalString, maxScore, nil
-}
-
-func EncodeRepeatingXor(c types.Cipher, key []byte) ([]byte, error) {
-	cipherType := reflect.ValueOf(c)
-	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Cipher)
-
-	s, err := c.Decode()
-	if err != nil {
-		return []byte{}, err
-	}
-
-	outputBytes := make([]byte, len(s))
-	keyLength := len(key)
-	for i, val := range s {
-		outputBytes[i] = byte(val) ^ key[int(i)%keyLength]
-	}
-	output.Encode(outputBytes)
-	return output.Get(), nil
-}
 
 const KeySizeMin = 2
 const KeySizeMax = 40
@@ -67,8 +27,8 @@ func getKeySizesSorted(b []byte) ([]kv, error) {
 			copy(blocks[i], b[i*keysize:i*keysize+keysize])
 		}
 		hDist := 0.0
-		for i := 0; i < Blocks-1; i += 1 {
-			dist, err := operations.HammingDistance(types.Bytes(blocks[i]), types.Bytes(blocks[i+1]))
+		for i := 0; i < Blocks-1; i++ {
+			dist, err := helpers.HammingDistance(types.Bytes(blocks[i]), types.Bytes(blocks[i+1]))
 			if err != nil {
 				return data, err
 			}
@@ -96,14 +56,13 @@ func createBuckets(b []byte, size int) [][]byte {
 
 func solvedStrings(buckets [][]byte, size int) []string {
 	s := make([]string, size)
-	f := frequency.CharacterFrequency{}
 	for i, val := range buckets {
-		s[i], _, _ = DecodeSingleByteXOR(types.Bytes(val), &f)
+		s[i], _, _ = DecodeSingleByteXOR(types.Bytes(val))
 	}
 	return s
 }
 
-func DecodeRepeatingXor(c types.Cipher) (string, error) {
+func DecodeRepeatingXor(c types.Type) (string, error) {
 	s, err := c.Decode()
 	if err != nil {
 		return "", err
@@ -124,4 +83,43 @@ func DecodeRepeatingXor(c types.Cipher) (string, error) {
 	}
 
 	return finalString, nil
+}
+
+func DecodeSingleByteXOR(c types.Type) (string, float64, error) {
+	s, err := c.Decode()
+	if err != nil {
+		return "", 0.0, err
+	}
+	maxScore := 0.0
+	FinalString := ""
+	tmp := make([]byte, len(s))
+	for i := 0; i < 255; i++ {
+		for j, v := range s {
+			tmp[j] = byte(v) ^ byte(i)
+		}
+		score := helpers.CharacterFrequency(tmp)
+		if score > maxScore {
+			maxScore = score
+			FinalString = string(tmp)
+		}
+	}
+	return FinalString, maxScore, nil
+}
+
+func EncodeRepeatingXor(c types.Type, key []byte) ([]byte, error) {
+	cipherType := reflect.ValueOf(c)
+	output := reflect.New(reflect.Indirect(cipherType).Type()).Interface().(types.Type)
+
+	s, err := c.Decode()
+	if err != nil {
+		return []byte{}, err
+	}
+
+	outputBytes := make([]byte, len(s))
+	keyLength := len(key)
+	for i, val := range s {
+		outputBytes[i] = byte(val) ^ key[int(i)%keyLength]
+	}
+	output.Encode(outputBytes)
+	return output.Get(), nil
 }
