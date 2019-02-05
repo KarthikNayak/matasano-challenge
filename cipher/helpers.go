@@ -85,3 +85,26 @@ func DetectECB(oracle Oracle) (bool, error) {
 	}
 	return false, nil
 }
+
+func DiscoverBlockSize(oracle Oracle, key []byte) int {
+	prevLen := 0
+	bSize := 0
+	for i := 1; i < 35; i++ {
+		b := make([]byte, i)
+		for _, j := range b {
+			b[j] = 'A'
+		}
+		op, _ := oracle(b, key)
+		if prevLen > 0 {
+			curLen := len(op)
+			if curLen > prevLen {
+				diff := curLen - prevLen
+				if diff < bSize || bSize == 0 {
+					bSize = diff
+				}
+			}
+		}
+		prevLen = len(op)
+	}
+	return bSize
+}

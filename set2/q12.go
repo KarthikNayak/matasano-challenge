@@ -46,33 +46,10 @@ func fixedECBOracle(input []byte, key []byte) ([]byte, error) {
 	return encoded, nil
 }
 
-func discoverBlockSize(key []byte) int {
-	prevLen := 0
-	bSize := 0
-	for i := 1; i < 35; i++ {
-		b := make([]byte, i)
-		for _, j := range b {
-			b[j] = 'A'
-		}
-		op, _ := fixedECBOracle(b, key)
-		if prevLen > 0 {
-			curLen := len(op)
-			if curLen > prevLen {
-				diff := curLen - prevLen
-				if diff < bSize || bSize == 0 {
-					bSize = diff
-				}
-			}
-		}
-		prevLen = len(op)
-	}
-	return bSize
-}
-
 func SolveQ12() error {
 	key := make([]byte, blockSizeBytes)
 	rand.Read(key)
-	bSize := discoverBlockSize(key)
+	bSize := cipher.DiscoverBlockSize(fixedECBOracle, key)
 
 	check, err := cipher.DetectECB(fixedECBOracle)
 	if err != nil {
