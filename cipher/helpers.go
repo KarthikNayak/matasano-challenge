@@ -7,9 +7,9 @@ import (
 	"math/rand"
 )
 
-type Oracle func([]byte) ([]byte, error)
+type Oracle func([]byte, []byte) ([]byte, error)
 
-func EncryptionOracle(input []byte) ([]byte, error) {
+func EncryptionOracle(input []byte, key []byte) ([]byte, error) {
 	blockSizeBytes := 16
 
 	randomStartSize := rand.Intn(6) + 5
@@ -30,9 +30,6 @@ func EncryptionOracle(input []byte) ([]byte, error) {
 
 	var t types.Text
 	t.Set(p.B)
-
-	key := make([]byte, blockSizeBytes)
-	rand.Read(key)
 
 	if rand.Intn(2) == 1 {
 		// ECB
@@ -74,7 +71,10 @@ func DetectECB(oracle Oracle) (bool, error) {
 	blockSize := 16
 
 	input := make([]byte, 16*5)
-	decoded, err := oracle(input)
+
+	key := make([]byte, blockSize)
+	rand.Read(key)
+	decoded, err := oracle(input, key)
 	if err != nil {
 		return false, err
 	}

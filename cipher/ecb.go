@@ -39,7 +39,7 @@ func (e *ECB) Decode(c types.Type) ([]byte, error) {
 	sizeBytes := e.SizeBits / 8
 
 	for i := 0; i < len(data); i += sizeBytes {
-		e.Block.Decrypt([]byte(data[i:i+sizeBytes]), []byte(data[i:i+sizeBytes]))
+		e.Block.Decrypt(data[i:i+sizeBytes], data[i:i+sizeBytes])
 	}
 
 	return data, nil
@@ -55,7 +55,7 @@ func (e *ECB) Encode(c types.Type) ([]byte, error) {
 	sizeBytes := e.SizeBits / 8
 
 	for i := 0; i < len(data); i += sizeBytes {
-		e.Block.Encrypt([]byte(data[i:i+sizeBytes]), []byte(data[i:i+sizeBytes]))
+		e.Block.Encrypt(data[i:i+sizeBytes], data[i:i+sizeBytes])
 	}
 
 	return data, nil
