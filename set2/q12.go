@@ -2,7 +2,6 @@ package set2
 
 import (
 	"errors"
-	"fmt"
 	"matasano/cipher"
 	"matasano/types"
 	"math/rand"
@@ -82,11 +81,10 @@ func SolveQ12() error {
 		return errors.New("not in ECB mode")
 	}
 
-	d, err := cipher.BreakECB(fixedECBOracle, bSize)
+	_, err = cipher.BreakECB(fixedECBOracle, bSize)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(d))
 
 	return nil
 }

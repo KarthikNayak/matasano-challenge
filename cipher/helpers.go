@@ -2,7 +2,6 @@ package cipher
 
 import (
 	"bytes"
-	"fmt"
 	"matasano/types"
 	"math/rand"
 )
@@ -34,7 +33,6 @@ func EncryptionOracle(input []byte, key []byte) ([]byte, error) {
 	if rand.Intn(2) == 1 {
 		// ECB
 		var e ECB
-		fmt.Println("ECB Cipher")
 
 		e.Init(key, blockSizeBytes*8)
 		if err != nil {
@@ -50,7 +48,6 @@ func EncryptionOracle(input []byte, key []byte) ([]byte, error) {
 	}
 	// CBC
 	var c CBC
-	fmt.Println("CBC Cipher")
 
 	IV := make([]byte, blockSizeBytes)
 	rand.Read(IV)

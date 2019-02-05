@@ -6,7 +6,7 @@ import (
 
 func TestQ12(t *testing.T) {
 	err := SolveQ12()
-	if err == nil {
+	if err != nil {
 		t.Fatal(err)
 	}
 }
