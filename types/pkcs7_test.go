@@ -2,15 +2,16 @@ package types
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 )
 
 func TestPKCS7_Encode(t *testing.T) {
 	tests := []struct {
-		name string
+		name          string
 		input, output []byte
-		size int
-		err error
+		size          int
+		err           error
 	}{
 		{
 			"Test 1",
@@ -37,15 +38,27 @@ func TestPKCS7_Encode(t *testing.T) {
 
 func TestPKCS7_Decode(t *testing.T) {
 	tests := []struct {
-		name string
+		name          string
 		input, output []byte
-		err error
+		err           error
 	}{
 		{
 			"Test 1",
 			[]byte{89, 69, 76, 76, 79, 87, 32, 83, 85, 66, 77, 65, 82, 73, 78, 69, 4, 4, 4, 4},
 			[]byte("YELLOW SUBMARINE"),
 			nil,
+		},
+		{
+			"Test 2: improper padding different values",
+			[]byte{89, 69, 76, 76, 79, 87, 32, 83, 85, 66, 77, 65, 82, 73, 78, 69, 4, 2, 2, 4},
+			[]byte{},
+			errors.New("improper padding for pkcs7"),
+		},
+		{
+			"Test 2: improper padding same values",
+			[]byte{89, 69, 76, 76, 79, 87, 32, 83, 85, 66, 77, 65, 82, 73, 78, 69, 6, 6, 6, 6},
+			[]byte{},
+			errors.New("improper padding for pkcs7"),
 		},
 	}
 	for _, test := range tests {
@@ -56,7 +69,7 @@ func TestPKCS7_Decode(t *testing.T) {
 			if bytes.Compare(output, test.output) != 0 {
 				t.Errorf("Expected output: %v, received output: %v", test.output, output)
 			}
-			if err != test.err {
+			if err != test.err && err.Error() != test.err.Error() {
 				t.Errorf("Expected error: %v, received error: %v", test.err, err)
 			}
 		})

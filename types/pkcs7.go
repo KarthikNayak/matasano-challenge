@@ -31,7 +31,7 @@ func (p *PKCS7) Decode() ([]byte, error) {
 	padding := p.B[length-1]
 	for i := 1; i < int(padding); i++ {
 		if p.B[length-1-i] != padding {
-			return p.B, nil
+			return []byte{}, errors.New("improper padding for pkcs7")
 		}
 	}
 	return p.B[:length-int(padding)], nil
