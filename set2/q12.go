@@ -13,19 +13,10 @@ const (
 )
 
 // Copied from cipher/helpers/EncryptionOracle
-func fixedECBOracle(input []byte, key []byte) ([]byte, error) {
-	var b types.Base64
-	b.Set([]byte(unkownTextString))
-	unkownText, err := b.Decode()
-	if err != nil {
-		return []byte{}, err
-	}
-
-	data := append(input, unkownText...)
-
+func fixedECBOracle(data []byte, key []byte) ([]byte, error) {
 	var p types.PKCS7
 	p.SetBlockSize(blockSizeBytes)
-	err = p.Encode(data)
+	err := p.Encode(data)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -46,19 +37,31 @@ func fixedECBOracle(input []byte, key []byte) ([]byte, error) {
 	return encoded, nil
 }
 
+func fixedECBWithUnkownText(input []byte, key []byte) ([]byte, error) {
+	var b types.Base64
+	b.Set([]byte(unkownTextString))
+	unkownText, err := b.Decode()
+	if err != nil {
+		return []byte{}, err
+	}
+
+	data := append(input, unkownText...)
+	return fixedECBOracle(data, key)
+}
+
 func SolveQ12() error {
 	key := make([]byte, blockSizeBytes)
 	rand.Read(key)
-	bSize := cipher.DiscoverBlockSize(fixedECBOracle, key)
+	bSize := cipher.DiscoverBlockSize(fixedECBWithUnkownText, key)
 
-	check, err := cipher.DetectECB(fixedECBOracle)
+	check, err := cipher.DetectECB(fixedECBWithUnkownText)
 	if err != nil {
 		return err
 	} else if check == false {
 		return errors.New("not in ECB mode")
 	}
 
-	_, err = cipher.BreakECB(fixedECBOracle, bSize)
+	_, err = cipher.BreakECB(fixedECBWithUnkownText, bSize)
 	if err != nil {
 		return err
 	}

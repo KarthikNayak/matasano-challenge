@@ -4,6 +4,9 @@ import (
 	"testing"
 )
 
-func TestSolveQ13(t *testing.T) {
-	SolveQ13()
+func TestQ13(t *testing.T) {
+	err := SolveQ13()
+	if err != nil {
+		t.Error(err)
+	}
 }
