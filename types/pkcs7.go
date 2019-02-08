@@ -51,7 +51,7 @@ func (p *PKCS7) Encode(b []byte) error {
 			padding = p.blockSize - extra
 		}
 	} else {
-		padding = p.blockSize % srcLen
+		padding = p.blockSize - srcLen
 	}
 
 	output := make([]byte, srcLen+padding)
