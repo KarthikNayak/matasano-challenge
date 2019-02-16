@@ -96,3 +96,15 @@ func CharacterFrequency(b []byte) float64 {
 	}
 	return sum
 }
+
+func CanonicalFrequency(b []byte) float64 {
+	sum := 0.0
+	for _, r := range b {
+		if val, ok := CanonicalFreq[r]; ok {
+			sum += val
+		} else {
+			sum -= float64(correction) / 20.0
+		}
+	}
+	return sum
+}
