@@ -45,21 +45,21 @@ func (c *CTR) Encode(t types.Type) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	xor := make([]byte, len(data))
+	keystream := make([]byte, len(data))
 	count := 0
 
 	for i := 0; i < len(data); i += sizeBytes {
 		counter := helpers.IntToLittleEndianBytes(uint64(count))
 
-		keystream := make([]byte, sizeBytes)
+		keystreamBlock := make([]byte, sizeBytes)
 		tmp := append(c.Nonce, counter...)
 
-		c.Block.Encrypt(keystream, tmp)
+		c.Block.Encrypt(keystreamBlock, tmp)
 
-		copy(xor[i:], keystream)
+		copy(keystream[i:], keystreamBlock)
 		count++
 	}
 
-	val, _ := helpers.Xor(&types.Text{T: data}, &types.Text{T: xor})
+	val, _ := helpers.Xor(&types.Text{T: data}, &types.Text{T: keystream})
 	return val.Get(), nil
 }
