@@ -1,7 +1,6 @@
 package random
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -17,5 +16,19 @@ func TestFindSeed(t *testing.T) {
 }
 
 func TestReverseBitFlip(t *testing.T) {
-	fmt.Println((ReverseBitFlip(1797302575)))
+	if ReverseBitFlip(1797302575) != 3019169788 {
+		t.Errorf("expected value :%v got something else", 3019169788)
+	}
+}
+
+func TestCloneMT19937(t *testing.T) {
+	var m MT19937
+	m.Seed(12342)
+
+	clone := CloneMT19937(m)
+	for i := 0; i < 1000; i++ {
+		if clone.Uint32() != m.Uint32() {
+			t.Errorf("non-matching numbers generated")
+		}
+	}
 }

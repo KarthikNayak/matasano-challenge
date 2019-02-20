@@ -1,7 +1,5 @@
 package random
 
-import "fmt"
-
 // Found at https://en.wikipedia.org/wiki/Mersenne_Twister
 // w: word size (in number of bits)
 // n: degree of recurrence
@@ -67,23 +65,15 @@ func (m *MT19937) Uint32() uint32 {
 	}
 
 	if m.index >= _N {
-		if m.index > _N {
-			m.Seed(5489)
-		}
 		m.twist()
 	}
 
 	y := m.data[m.index]
-	fmt.Println("before:", y)
 	y = y ^ ((y >> _U) & _D)
-	fmt.Println("1:", y)
 	y = y ^ ((y << _S) & _B)
-	fmt.Println("2:", y)
 	y = y ^ ((y << _T) & _C)
-	fmt.Println("3:", y)
 	y = y ^ (y >> _L)
-	fmt.Println("after:", y)
-
 	m.index = m.index + 1
+
 	return y
 }
