@@ -2,7 +2,6 @@ package set4
 
 import (
 	"crypto/aes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"matasano/cipher"
@@ -78,7 +77,5 @@ func SolveQ25() error {
 
 	val, _ := helpers.Xor(&types.Text{T: keystream}, &types.Text{T: data})
 	_ = val
-	fmt.Println(string(val.Get()))
-
 	return nil
 }
