@@ -7,7 +7,7 @@ import (
 func TestMT19937Init(t *testing.T) {
 	var m MT19937
 	m.init()
-	if len(m.data) != _N-1 {
+	if len(m.data) != _N {
 		t.Error("length of data incorrect")
 	}
 	if m.index != _N+1 {
