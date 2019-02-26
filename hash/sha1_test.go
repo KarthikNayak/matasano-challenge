@@ -22,7 +22,7 @@ func TestPreProcess(t *testing.T) {
 		rand.Read(data)
 
 		fmt.Println(data)
-		data = preProcess(data)
+		data = PreProcess(data)
 		fmt.Println(data)
 
 		if len(data)%64 != 0 {

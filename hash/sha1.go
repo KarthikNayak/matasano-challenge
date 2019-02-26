@@ -7,9 +7,7 @@ import (
 	"strings"
 )
 
-const ()
-
-func preProcess(data []byte) []byte {
+func PreProcess(data []byte) []byte {
 	ml := uint64(len(data)) * 8
 
 	// append the bit '1' to the message e.g. by adding 0x80 if message length is a multiple of 8 bits.
@@ -34,7 +32,7 @@ func LeftRotate(x uint32, n uint32) uint32 {
 }
 
 func Sha1(data []byte) string {
-	pData := preProcess(data)
+	pData := PreProcess(data)
 
 	var h0 uint32 = 0x67452301
 	var h1 uint32 = 0xEFCDAB89

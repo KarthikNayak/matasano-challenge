@@ -17,7 +17,6 @@ type CBC struct {
 
 func (c *CBC) Init(key []byte, d ...interface{}) error {
 	var err error
-
 	if len(d) == 2 {
 		c.SizeBits = d[0].(int)
 		c.Block, err = aes.NewCipher(key)
