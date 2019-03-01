@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"matasano/types"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 func PreProcess(data []byte) []byte {
 	ml := uint64(len(data)) * 8
-
 	// append the bit '1' to the message e.g. by adding 0x80 if message length is a multiple of 8 bits.
 	data = append(data, 0x80)
 
@@ -31,17 +32,10 @@ func LeftRotate(x uint32, n uint32) uint32 {
 	return (x << n) | (x >> (32 - n))
 }
 
-func Sha1(data []byte) string {
-	pData := PreProcess(data)
-
-	var h0 uint32 = 0x67452301
-	var h1 uint32 = 0xEFCDAB89
-	var h2 uint32 = 0x98BADCFE
-	var h3 uint32 = 0x10325476
-	var h4 uint32 = 0xC3D2E1F0
-
+func Sha1Base(pData []byte, h0, h1, h2, h3, h4 uint32) string {
 	// Process the message in successive 512-bit chunks
 	for i := 0; i < len(pData); i += 64 {
+
 		// break chunk into sixteen 32-bit big-endian words
 		w := make([]uint32, 80)
 		for j := 0; j < 16; j++ {
@@ -101,4 +95,29 @@ func Sha1(data []byte) string {
 	hex := types.Hex{}
 	hex.Encode(hash)
 	return strings.ToLower(string(hex.Get()))
+}
+
+func Sha1(data []byte) string {
+	var h0 uint32 = 0x67452301
+	var h1 uint32 = 0xEFCDAB89
+	var h2 uint32 = 0x98BADCFE
+	var h3 uint32 = 0x10325476
+	var h4 uint32 = 0xC3D2E1F0
+
+	pData := PreProcess(data)
+	return Sha1Base(pData, h0, h1, h2, h3, h4)
+}
+
+func Sha1MACOracle() (func(msg []byte, sha1 string) bool, func(msg []byte) string) {
+	rand.Seed(int64(time.Now().Second()))
+	l := rand.Intn(20) + 1
+	key := make([]byte, l)
+	rand.Read(key)
+
+	return func(msg []byte, sha1 string) bool {
+			expected := Sha1(append(key, msg...))
+			return strings.Compare(expected, sha1) == 0
+		}, func(msg []byte) string {
+			return Sha1(append(key, msg...))
+		}
 }
