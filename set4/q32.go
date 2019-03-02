@@ -3,27 +3,16 @@ package set4
 import (
 	"errors"
 	"fmt"
-	"matasano/hash"
 	"matasano/types"
-	"math/rand"
 	"net/http"
 	"time"
 )
 
-var h func(msg []byte) string
+const (
+	waitTime = 5
+)
 
-func HMACSign() func(msg []byte) string {
-	rand.Seed(int64(time.Now().Second()))
-	l := rand.Intn(20) + 1
-	key := make([]byte, l)
-	rand.Read(key)
-
-	return func(msg []byte) string {
-		return hash.HMAC(key, msg)
-	}
-}
-
-func insecureCompare(sha1, sha2 string) bool {
+func insecureCompare2(sha1, sha2 string) bool {
 	hex1 := types.Hex{B: []byte(sha1)}
 	hex2 := types.Hex{B: []byte(sha2)}
 
@@ -40,12 +29,12 @@ func insecureCompare(sha1, sha2 string) bool {
 		if b1[i] != b2[i] {
 			return false
 		}
-		time.Sleep(time.Millisecond * 50)
+		time.Sleep(time.Millisecond * waitTime)
 	}
 	return true
 }
 
-func hello(w http.ResponseWriter, r *http.Request) {
+func hello2(w http.ResponseWriter, r *http.Request) {
 	file, ok := r.URL.Query()["file"]
 	if !ok || len(file) != 1 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -62,7 +51,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 	expectedSha := h([]byte(file[0]))
 
-	if insecureCompare(signature[0], expectedSha) {
+	if insecureCompare2(signature[0], expectedSha) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Matching signature"))
 		return
@@ -73,43 +62,66 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func server() {
+func server2() {
 	h = HMACSign()
-	http.HandleFunc("/", hello)
+	http.HandleFunc("/", hello2)
 	http.ListenAndServe(":8000", nil)
 }
 
-func Solve31() ([]byte, error) {
+func maxIndex(f []float64) int {
+	max := 0.0
+	index := 0
+	for i, val := range f {
+		if val > max {
+			index = i
+			max = val
+		}
+	}
+	fmt.Println("max:", max, index)
+	return index
+}
+
+func Solve32() ([]byte, error) {
 	file := "foo"
 	url := "http://localhost:8000/?file=%s&signature=%s"
 
 	mac := make([]byte, 20)
 
 	for i := 0; i < 20; i++ {
+		fmt.Println(i)
+		var times []float64
 		for j := 0; j < 256; j++ {
+			norm := 2
+
 			mac[i] = byte(j)
 			h := types.Hex{}
 			h.Encode(mac)
 			fUrl := fmt.Sprintf(url, file, h.Get())
 
-			startTime := time.Now()
-			resp, err := http.Get(fUrl)
-			duration := time.Now().Sub(startTime)
+			td := 0.0
 
-			ms := duration.Seconds() * 1000
+			for k := 0; k < norm; k++ {
+				startTime := time.Now()
+				resp, err := http.Get(fUrl)
+				duration := time.Now().Sub(startTime)
 
-			if err != nil {
-				return []byte{}, err
-			}
-			if resp.StatusCode == 200 {
-				return mac, nil
+				if err != nil {
+					return []byte{}, err
+				}
+				if resp.StatusCode == 200 {
+					return mac, nil
+				}
+				resp.Body.Close()
+
+				td += duration.Seconds() * 1000
 			}
 
-			if ms > float64(i+1)*50 {
-				break
-			}
-			resp.Body.Close()
+			td /= float64(norm)
+			times = append(times, td)
 		}
+		fmt.Println(times)
+		mac[i] = byte(maxIndex(times))
+
 	}
 
 	return []byte{}, errors.New("didn't get the mac")
