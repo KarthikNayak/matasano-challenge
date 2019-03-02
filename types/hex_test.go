@@ -1,7 +1,6 @@
 package types
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -58,7 +57,7 @@ func TestHex_Encode(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			hex := Hex{}
 			err := hex.Encode([]byte(test.s))
-			if !strings.EqualFold(string(hex.B), test.encoded) {
+			if string(hex.B) != test.encoded {
 				t.Errorf("Expected output: %v output recieved: %v", test.encoded, string(hex.B))
 			}
 			if (err != nil) != (test.err != nil) {

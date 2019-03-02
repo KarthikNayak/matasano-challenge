@@ -6,15 +6,15 @@ import (
 
 func Test(t *testing.T) {
 	tests := []struct {
-		name string
-		input string
+		name   string
+		input  string
 		output string
 	}{
 		{
 			"Line 1",
 			`Burning 'em, if you ain't quick and nimble
 I go crazy when I hear a cymbal`,
-			"0B3637272A2B2E63622C2E69692A23693A2A3C6324202D623D63343C2A26226324272765272A282B2F20430A652E2C652A3124333A653E2B2027630C692B20283165286326302E27282F",
+			"0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f",
 		},
 	}
 	for _, test := range tests {

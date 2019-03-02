@@ -36,7 +36,7 @@ func parseByte(b byte) (byte, error) {
 	if val < 10 {
 		return byte(val + 48), nil
 	} else if val < 16 {
-		return byte(val + 55), nil
+		return byte(val + 87), nil
 	}
 	return 0, errors.New(fmt.Sprintf("nyte cannot be parsed to hex: %v", b))
 }
@@ -58,20 +58,20 @@ func (h *Hex) Decode() ([]byte, error) {
 		if err != nil {
 			return val, err
 		}
-		if i + 1 >= len(h.B) {
+		if i+1 >= len(h.B) {
 			return val, errors.New("hex array length is odd")
 		}
-		b, err := parseHex(h.B[i + 1])
+		b, err := parseHex(h.B[i+1])
 		if err != nil {
 			return val, err
 		}
-		val = append(val, byte(a << 4 | b))
+		val = append(val, byte(a<<4|b))
 	}
 
 	return val, nil
 }
 
-func (h *Hex) Encode(b []byte) (error) {
+func (h *Hex) Encode(b []byte) error {
 	for _, c := range b {
 		firstHex, err := parseByte(byte(c) >> 4)
 		if err != nil {
@@ -86,4 +86,3 @@ func (h *Hex) Encode(b []byte) (error) {
 	}
 	return nil
 }
-

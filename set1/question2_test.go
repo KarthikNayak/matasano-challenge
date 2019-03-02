@@ -7,7 +7,7 @@ import (
 func TestSolveQ2(t *testing.T) {
 	h1 := "1c0111001f010100061a024b53535009181c"
 	h2 := "686974207468652062756c6c277320657965"
-	expectedOutput := "746865206B696420646F6E277420706C6179"
+	expectedOutput := "746865206b696420646f6e277420706c6179"
 
 	output, err := SolveQ2([]byte(h1), []byte(h2))
 	if err != nil {
@@ -17,4 +17,3 @@ func TestSolveQ2(t *testing.T) {
 		t.Errorf("Expected output: %v obtained output: %v", expectedOutput, output)
 	}
 }
-
