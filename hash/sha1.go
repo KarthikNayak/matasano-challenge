@@ -3,6 +3,7 @@ package hash
 import (
 	"bytes"
 	"encoding/binary"
+	"matasano/helpers"
 	"matasano/types"
 	"math/rand"
 	"strings"
@@ -32,7 +33,7 @@ func LeftRotate(x uint32, n uint32) uint32 {
 	return (x << n) | (x >> (32 - n))
 }
 
-func Sha1Base(pData []byte, h0, h1, h2, h3, h4 uint32) string {
+func Sha1WithoutHexBase(pData []byte, h0, h1, h2, h3, h4 uint32) []byte {
 	// Process the message in successive 512-bit chunks
 	for i := 0; i < len(pData); i += 64 {
 
@@ -92,6 +93,11 @@ func Sha1Base(pData []byte, h0, h1, h2, h3, h4 uint32) string {
 	hash[12], hash[13], hash[14], hash[15] = byte(h3>>24), byte(h3>>16), byte(h3>>8), byte(h3)
 	hash[16], hash[17], hash[18], hash[19] = byte(h4>>24), byte(h4>>16), byte(h4>>8), byte(h4)
 
+	return hash
+}
+
+func Sha1Base(pData []byte, h0, h1, h2, h3, h4 uint32) string {
+	hash := Sha1WithoutHexBase(pData, h0, h1, h2, h3, h4)
 	hex := types.Hex{}
 	hex.Encode(hash)
 	return strings.ToLower(string(hex.Get()))
@@ -108,6 +114,17 @@ func Sha1(data []byte) string {
 	return Sha1Base(pData, h0, h1, h2, h3, h4)
 }
 
+func Sha1Bytes(data []byte) []byte {
+	var h0 uint32 = 0x67452301
+	var h1 uint32 = 0xEFCDAB89
+	var h2 uint32 = 0x98BADCFE
+	var h3 uint32 = 0x10325476
+	var h4 uint32 = 0xC3D2E1F0
+
+	pData := PreProcess(data)
+	return Sha1WithoutHexBase(pData, h0, h1, h2, h3, h4)
+}
+
 func Sha1MACOracle() (func(msg []byte, sha1 string) bool, func(msg []byte) string) {
 	rand.Seed(int64(time.Now().Second()))
 	l := rand.Intn(20) + 1
@@ -120,4 +137,35 @@ func Sha1MACOracle() (func(msg []byte, sha1 string) bool, func(msg []byte) strin
 		}, func(msg []byte) string {
 			return Sha1(append(key, msg...))
 		}
+}
+
+func HMAC(key, message []byte) string {
+	bSize := 64
+
+	//Keys longer than blockSize are shortened by hashing them
+	if len(key) > bSize {
+		key = []byte(Sha1Bytes(key))
+	}
+
+	//Keys shorter than blockSize are padded to blockSize by padding with zeros on the right
+	padLen := bSize - len(key)
+	for i := 0; i < padLen; i++ {
+		key = append(key, 0x0)
+	}
+
+	iPad := make([]byte, bSize)
+	oPad := make([]byte, bSize)
+
+	for i := 0; i < bSize; i++ {
+		oPad[i] = 0x5c
+		iPad[i] = 0x36
+	}
+
+	iKeyPad, _ := helpers.Xor(&types.Text{T: key}, &types.Text{T: iPad})
+	oKeyPad, _ := helpers.Xor(&types.Text{T: key}, &types.Text{T: oPad})
+
+	msg := append(iKeyPad.Get(), message...)
+	innerHash := Sha1Bytes(msg)
+	outerHash := Sha1(append(oKeyPad.Get(), []byte(innerHash)...))
+	return outerHash
 }

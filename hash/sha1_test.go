@@ -63,3 +63,31 @@ func TestSha1(t *testing.T) {
 		}
 	}
 }
+
+func TestHMAC(t *testing.T) {
+	tests := []struct {
+		key  []byte
+		msg  []byte
+		sha1 string
+	}{
+		{
+			[]byte("key"),
+			[]byte("The quick brown fox jumps over the lazy dog"),
+			"de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9",
+		},
+		{
+			[]byte(""),
+			[]byte(""),
+			"fbdb1d1b18aa6c08324b7d64b71fb76370690e1d",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("key: %s msg: %s", test.key, test.msg), func(t *testing.T) {
+			sha1 := HMAC(test.key, test.msg)
+			if strings.Compare(sha1, test.sha1) != 0 {
+				t.Fatalf("expected %s got %s", test.sha1, sha1)
+			}
+		})
+	}
+}
