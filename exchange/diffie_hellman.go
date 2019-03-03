@@ -2,17 +2,28 @@ package exchange
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
+	"crypto/sha1"
 	"math/big"
 )
 
 type DF struct {
 	a    *big.Int
-	b    *big.Int
+	B    big.Int
 	P    big.Int
 	G    big.Int
 	Key  big.Int
-	Hash [32]byte
+	Hash [20]byte
+}
+
+type DFClient interface {
+	SetBPG(B, P, G big.Int)
+	SetB(B big.Int)
+
+	SendPGA(d2 DFClient) error
+	SendB(d2 DFClient) error
+
+	GenHash()
+	GetHash() []byte
 }
 
 const (
@@ -20,35 +31,52 @@ const (
 	g = "2"
 )
 
-func (d *DF) Setup() {
+func (d *DF) SendPGA(d2 DFClient) error {
 	d.P.SetString(p, 16)
 	d.G.SetString(g, 16)
 
-}
-
-func (d *DF) StoreHashFromKey() {
-	d.Hash = sha256.Sum256(d.Key.Bytes())
-}
-
-func (d *DF) SendOnPublic(d2 *DF) error {
-	var A big.Int
 	var err error
-
 	d.a, err = rand.Int(rand.Reader, &d.P)
 	if err != nil {
 		return err
 	}
 
+	var A big.Int
 	A.Exp(&d.G, d.a, &d.P)
-	d2.StoreB(&A)
+	d2.SetBPG(A, d.P, d.G)
+
 	return nil
 }
 
-func (d *DF) StoreB(B *big.Int) {
-	d.b = B
+func (d *DF) SendB(d2 DFClient) error {
+	var err error
+	d.a, err = rand.Int(rand.Reader, &d.P)
+	if err != nil {
+		return err
+	}
+
+	var A big.Int
+	A.Exp(&d.G, d.a, &d.P)
+	d2.SetB(A)
+
+	return nil
 }
 
-func (d *DF) GenerateSecret() {
-	d.Key.Exp(d.b, d.a, &d.P)
-	d.StoreHashFromKey()
+func (d *DF) SetB(B big.Int) {
+	d.B = B
+}
+
+func (d *DF) SetBPG(B, P, G big.Int) {
+	d.B = B
+	d.P = P
+	d.G = G
+}
+
+func (d *DF) GenHash() {
+	d.Key.Exp(&d.B, d.a, &d.P)
+	d.Hash = sha1.Sum(d.Key.Bytes())
+}
+
+func (d *DF) GetHash() []byte {
+	return d.Hash[:]
 }
