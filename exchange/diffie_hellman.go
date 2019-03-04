@@ -63,7 +63,9 @@ func (d *DF) SendB(d2 DFClient) error {
 	}
 
 	var A big.Int
+
 	A.Exp(&d.G, d.a, &d.P)
+
 	d2.SetB(A)
 
 	return nil
@@ -101,6 +103,7 @@ func (d *DF) SendAESMsg(d2 DFClient) error {
 	var c cipher.CBC
 	IV := make([]byte, 16)
 	rand.Read(IV)
+
 	err = c.Init(d.Hash[:16], 16*8, IV)
 	if err != nil {
 		return err
