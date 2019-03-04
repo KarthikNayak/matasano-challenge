@@ -3,6 +3,9 @@ package exchange
 import (
 	"crypto/rand"
 	"crypto/sha1"
+	"fmt"
+	"matasano/cipher"
+	"matasano/types"
 	"math/big"
 )
 
@@ -24,6 +27,10 @@ type DFClient interface {
 
 	GenHash()
 	GetHash() []byte
+
+	SendAESMsg(d2 DFClient) error
+	EchoMsg(msg []byte, d2 DFClient) error
+	ReceiveMsg(msg []byte) error
 }
 
 const (
@@ -79,4 +86,84 @@ func (d *DF) GenHash() {
 
 func (d *DF) GetHash() []byte {
 	return d.Hash[:]
+}
+
+func (d *DF) SendAESMsg(d2 DFClient) error {
+	msg := []byte("Hello, World!")
+
+	var p types.PKCS7
+	p.SetBlockSize(16)
+	err := p.Encode(msg)
+	if err != nil {
+		return err
+	}
+
+	var c cipher.CBC
+	IV := make([]byte, 16)
+	rand.Read(IV)
+	err = c.Init(d.Hash[:16], 16*8, IV)
+	if err != nil {
+		return err
+	}
+
+	encoded, err := c.Encode(&types.Text{T: p.B})
+	if err != nil {
+		return err
+	}
+
+	d2.EchoMsg(append(encoded, IV...), d)
+
+	return nil
+}
+
+func (d *DF) EchoMsg(msg []byte, d2 DFClient) error {
+	origIV := msg[len(msg)-16:]
+	origMsgEncoded := msg[:len(msg)-16]
+
+	var c cipher.CBC
+	err := c.Init(d.Hash[:16], 16*8, origIV)
+	if err != nil {
+		return err
+	}
+
+	decoded, err := c.Decode(&types.Text{T: origMsgEncoded})
+	if err != nil {
+		return err
+	}
+
+	var c2 cipher.CBC
+	IV := make([]byte, 16)
+	rand.Read(IV)
+	err = c2.Init(d.Hash[:16], 16*8, IV)
+	if err != nil {
+		return err
+	}
+
+	encoded, err := c2.Encode(&types.Text{T: decoded})
+	if err != nil {
+		return nil
+	}
+
+	d2.ReceiveMsg(append(encoded, IV...))
+
+	return nil
+}
+
+func (d *DF) ReceiveMsg(msg []byte) error {
+	origIV := msg[len(msg)-16:]
+	origMsgEncoded := msg[:len(msg)-16]
+
+	var c cipher.CBC
+	err := c.Init(d.Hash[:16], 16*8, origIV)
+	if err != nil {
+		return err
+	}
+
+	decoded, err := c.Decode(&types.Text{T: origMsgEncoded})
+	if err != nil {
+		return err
+	}
+	fmt.Println("Recieved echo with msg:", string(decoded))
+
+	return nil
 }

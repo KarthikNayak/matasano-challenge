@@ -41,8 +41,8 @@ func TestCBCEncode(t *testing.T) {
 	}
 
 	var c CBC
-	b := make([]byte, 16)
-	err = c.Init([]byte("YELLOW SUBMARINE"), 128, b)
+	IV := make([]byte, 16)
+	err = c.Init([]byte("YELLOW SUBMARINE"), 128, IV)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
