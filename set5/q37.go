@@ -7,7 +7,7 @@ import (
 	"math/big"
 )
 
-type SRPClient struct {
+type SRPClientZero struct {
 	N    big.Int
 	g    big.Int
 	k    big.Int
@@ -22,30 +22,31 @@ type SRPClient struct {
 	password string
 }
 
-func (c *SRPClient) ReceiveParams(N, g, k big.Int) {
+func (c *SRPClientZero) ReceiveParams(N, g, k big.Int) {
 	c.N, c.g, c.k = N, g, k
 }
 
-func (c *SRPClient) SendUser(s *exchange.SRP) {
+func (c *SRPClientZero) SendUser(s *exchange.SRP) {
 	c.email = "foo@boo.com"
 	c.password = "password1234"
 
 	s.ReceiveUser(c.email, c.password)
 }
 
-func (c *SRPClient) SendIA(s *exchange.SRP) {
+func (c *SRPClientZero) SendIA(s *exchange.SRP) {
 	c.a, _ = rand.Int(rand.Reader, &c.N)
-	c.A.Exp(&c.g, c.a, &c.N)
 
+	// Set A to 0 lol
+	c.A.SetInt64(0)
 	s.ReceiveIA(c.A, c.email)
 }
 
-func (c *SRPClient) ReceiveSaltB(salt, B big.Int) {
+func (c *SRPClientZero) ReceiveSaltB(salt, B big.Int) {
 	c.salt = salt
 	c.B = B
 }
 
-func (c *SRPClient) ComputeHSK() {
+func (c *SRPClientZero) ComputeHSK() {
 	uH := sha256.Sum256(append(c.A.Bytes(), c.B.Bytes()...))
 	u := exchange.Sha256ToBigInt(uH[:])
 	xH := sha256.Sum256(append(c.salt.Bytes(), c.password...))
@@ -60,28 +61,29 @@ func (c *SRPClient) ComputeHSK() {
 	tmp2.Mul(&u, &x)
 	tmp2.Add(c.a, &tmp2)
 
-	c.S.Exp(&tmp, &tmp2, &c.N)
+	// Password set secret to 0
+	c.S.SetInt64(0)
+
 	c.K = sha256.Sum256(c.S.Bytes())
 }
 
-func (c *SRPClient) SendHMAC(s *exchange.SRP) bool {
+func (c *SRPClientZero) SendHMAC(s *exchange.SRP) bool {
 	HMAC := sha256.Sum256(append(c.K[:], c.salt.Bytes()...))
 	return s.CheckHMAC(HMAC[:])
 }
 
-func SolveQ36() bool {
+func SolveQ37() bool {
 	var s exchange.SRP
-	var c SRPClient
+	var c SRPClientZero
 
+	// Signup
 	s.SendStartParams(&c)
 	c.SendUser(&s)
 
+	// Login starts here
 	s.GenSalt()
-
 	c.SendIA(&s)
-
 	s.SendSaltB(&c)
-
 	s.ComputeHSK()
 	c.ComputeHSK()
 

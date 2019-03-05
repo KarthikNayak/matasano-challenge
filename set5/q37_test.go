@@ -2,8 +2,8 @@ package set5
 
 import "testing"
 
-func TestSolveQ36(t *testing.T) {
-	if !SolveQ36() {
+func TestSolveQ37(t *testing.T) {
+	if !SolveQ37() {
 		t.Fatal("expected test to pass")
 	}
 }
