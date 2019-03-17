@@ -21,11 +21,21 @@ func Sha256ToBigInt(sha []byte) big.Int {
 
 type SRPClient interface {
 	ReceiveParams(N, g, k big.Int)
-	SendUser(s *SRP)
-	SendIA(s *SRP)
+	SendUser(s SRPServer)
+	SendIA(s SRPServer)
 	ReceiveSaltB(salt, B big.Int)
 	ComputeHSK()
-	SendHMAC(s *SRP) bool
+	SendHMAC(s SRPServer) bool
+}
+
+type SRPServer interface {
+	SendStartParams(c SRPClient)
+	ReceiveUser(email, password string)
+	GenSalt()
+	ReceiveIA(A big.Int, I string)
+	SendSaltB(c SRPClient)
+	ComputeHSK()
+	CheckHMAC(HMAC []byte) bool
 }
 
 type SRP struct {

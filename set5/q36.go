@@ -26,14 +26,14 @@ func (c *SRPClient) ReceiveParams(N, g, k big.Int) {
 	c.N, c.g, c.k = N, g, k
 }
 
-func (c *SRPClient) SendUser(s *exchange.SRP) {
+func (c *SRPClient) SendUser(s exchange.SRPServer) {
 	c.email = "foo@boo.com"
 	c.password = "password1234"
 
 	s.ReceiveUser(c.email, c.password)
 }
 
-func (c *SRPClient) SendIA(s *exchange.SRP) {
+func (c *SRPClient) SendIA(s exchange.SRPServer) {
 	c.a, _ = rand.Int(rand.Reader, &c.N)
 	c.A.Exp(&c.g, c.a, &c.N)
 
@@ -64,7 +64,7 @@ func (c *SRPClient) ComputeHSK() {
 	c.K = sha256.Sum256(c.S.Bytes())
 }
 
-func (c *SRPClient) SendHMAC(s *exchange.SRP) bool {
+func (c *SRPClient) SendHMAC(s exchange.SRPServer) bool {
 	HMAC := sha256.Sum256(append(c.K[:], c.salt.Bytes()...))
 	return s.CheckHMAC(HMAC[:])
 }
