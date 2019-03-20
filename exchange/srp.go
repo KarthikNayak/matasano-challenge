@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
 	"math/big"
 )
 
@@ -13,9 +14,9 @@ const (
 	k = "3"
 )
 
-func Sha256ToBigInt(sha []byte) big.Int {
-	var x big.Int
-	x.SetString(string(sha), 16)
+func Sha256ToBigInt(sha []byte) *big.Int {
+	x := new(big.Int)
+	x.SetString(fmt.Sprintf("%x", sha), 16)
 	return x
 }
 
@@ -23,8 +24,8 @@ type SRPClient interface {
 	ReceiveParams(N, g, k big.Int)
 	SendUser(s SRPServer)
 	SendIA(s SRPServer)
-	ReceiveSaltB(salt, B big.Int)
-	ComputeHSK()
+	ReceiveSaltB(salt []byte, B big.Int)
+	ComputeHSK(simple bool)
 	SendHMAC(s SRPServer) bool
 }
 
@@ -42,7 +43,7 @@ type SRP struct {
 	N    big.Int
 	g    big.Int
 	k    big.Int
-	salt *big.Int
+	salt []byte
 	v    big.Int
 	b    *big.Int
 	B    big.Int
@@ -67,11 +68,11 @@ func (s *SRP) ReceiveUser(email, password string) {
 }
 
 func (s *SRP) GenSalt() {
-	s.salt, _ = rand.Int(rand.Reader, &s.N)
-	xH := sha256.Sum256(append(s.salt.Bytes(), []byte(s.P)...))
+	rand.Read(s.salt)
+	xH := sha256.Sum256(append(s.salt, []byte(s.P)...))
 	x := Sha256ToBigInt(xH[:])
 
-	s.v.Exp(&s.g, &x, &s.N)
+	s.v.Exp(&s.g, x, &s.N)
 }
 
 func (s *SRP) ReceiveIA(A big.Int, I string) {
@@ -85,7 +86,7 @@ func (s *SRP) SendSaltB(c SRPClient) {
 	tmp.Exp(&s.g, s.b, &s.N)
 	s.B.Add(&s.B, &tmp)
 
-	c.ReceiveSaltB(*s.salt, s.B)
+	c.ReceiveSaltB(s.salt, s.B)
 }
 
 func (s *SRP) ComputeHSK() {
@@ -93,7 +94,7 @@ func (s *SRP) ComputeHSK() {
 	u := Sha256ToBigInt(uH[:])
 
 	var tmp big.Int
-	tmp.Exp(&s.v, &u, nil)
+	tmp.Exp(&s.v, u, &s.N)
 	tmp.Mul(&s.A, &tmp)
 
 	s.S.Exp(&tmp, s.b, &s.N)
@@ -101,6 +102,6 @@ func (s *SRP) ComputeHSK() {
 }
 
 func (s *SRP) CheckHMAC(HMAC []byte) bool {
-	HMAC2 := sha256.Sum256(append(s.K[:], s.salt.Bytes()...))
+	HMAC2 := sha256.Sum256(append(s.K[:], s.salt...))
 	return bytes.Compare(HMAC, HMAC2[:]) == 0
 }

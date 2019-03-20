@@ -13,7 +13,7 @@ type SRPClient struct {
 	k    big.Int
 	a    *big.Int
 	A    big.Int
-	salt big.Int
+	salt []byte
 	B    big.Int
 	S    big.Int
 
@@ -40,32 +40,38 @@ func (c *SRPClient) SendIA(s exchange.SRPServer) {
 	s.ReceiveIA(c.A, c.email)
 }
 
-func (c *SRPClient) ReceiveSaltB(salt, B big.Int) {
+func (c *SRPClient) ReceiveSaltB(salt []byte, B big.Int) {
 	c.salt = salt
 	c.B = B
 }
 
-func (c *SRPClient) ComputeHSK() {
+func (c *SRPClient) ComputeHSK(simple bool) {
 	uH := sha256.Sum256(append(c.A.Bytes(), c.B.Bytes()...))
 	u := exchange.Sha256ToBigInt(uH[:])
-	xH := sha256.Sum256(append(c.salt.Bytes(), c.password...))
+	xH := sha256.Sum256(append(c.salt, c.password...))
 	x := exchange.Sha256ToBigInt(xH[:])
 
-	var tmp big.Int
-	tmp.Exp(&c.g, &x, nil)
-	tmp.Mul(&c.k, &tmp)
-	tmp.Sub(&c.B, &tmp)
-
 	var tmp2 big.Int
-	tmp2.Mul(&u, &x)
+	tmp2.Mul(u, x)
 	tmp2.Add(c.a, &tmp2)
+	tmp2.Mod(&tmp2, &c.N)
 
-	c.S.Exp(&tmp, &tmp2, &c.N)
-	c.K = sha256.Sum256(c.S.Bytes())
+	if !simple {
+		var tmp big.Int
+		tmp.Exp(&c.g, x, &c.N)
+		tmp.Mul(&c.k, &tmp)
+		tmp.Sub(&c.B, &tmp)
+
+		c.S.Exp(&tmp, &tmp2, &c.N)
+		c.K = sha256.Sum256(c.S.Bytes())
+	} else {
+		c.S.Exp(&c.B, &tmp2, &c.N)
+		c.K = sha256.Sum256(c.S.Bytes())
+	}
 }
 
 func (c *SRPClient) SendHMAC(s exchange.SRPServer) bool {
-	HMAC := sha256.Sum256(append(c.K[:], c.salt.Bytes()...))
+	HMAC := sha256.Sum256(append(c.K[:], c.salt...))
 	return s.CheckHMAC(HMAC[:])
 }
 
@@ -77,13 +83,11 @@ func SolveQ36() bool {
 	c.SendUser(&s)
 
 	s.GenSalt()
-
 	c.SendIA(&s)
-
 	s.SendSaltB(&c)
 
 	s.ComputeHSK()
-	c.ComputeHSK()
+	c.ComputeHSK(false)
 
 	return c.SendHMAC(&s)
 }
