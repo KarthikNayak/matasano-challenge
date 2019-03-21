@@ -1,7 +1,7 @@
 package keys
 
 import (
-	"math/big"
+	"crypto/rand"
 	"testing"
 )
 
@@ -12,12 +12,14 @@ func TestRSA(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	m := new(big.Int).SetInt64(42)
-	c := r.EncryptBigInt(m)
-	newM := r.DecryptBigInt(c)
+	for i := 0; i < 100; i++ {
+		m, _ := rand.Int(rand.Reader, r.N)
+		c := r.EncryptBigInt(m)
+		newM := r.DecryptBigInt(c)
 
-	if m.Cmp(newM) != 0 {
-		t.Fatalf("expected: %d got: %d", m.Int64(), newM.Int64())
+		if m.Cmp(newM) != 0 {
+			t.Errorf("expected: %d got: %d", m.Int64(), newM.Int64())
+		}
 	}
 }
 
