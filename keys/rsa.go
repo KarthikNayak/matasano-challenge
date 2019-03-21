@@ -11,6 +11,8 @@ const (
 )
 
 type RSA struct {
+	// Public Key: [e, n]
+	// Private Key: [d, n]
 	E *big.Int
 	D *big.Int
 	N *big.Int
