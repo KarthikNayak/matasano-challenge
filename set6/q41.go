@@ -34,6 +34,9 @@ func SolveQ41(val int64) int64 {
 
 	p1 := f(c1)
 
-	s1, _ := new(big.Int).DivMod(p1, s, r.N)
+	s1 := new(big.Int).ModInverse(s, r.N)
+	s1.Mul(s1, p1)
+	s1.Mod(s1, r.N)
+
 	return s1.Int64()
 }
