@@ -6,7 +6,7 @@ import (
 
 func TestDSA(t *testing.T) {
 	d := new(DSA)
-	d.GenerateKeys()
+	d.GenerateKeys(nil)
 
 	msg := "dude"
 	r, s, err := d.Sign(msg)

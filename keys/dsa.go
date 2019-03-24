@@ -21,6 +21,8 @@ func DSAGeneratePQG() (*big.Int, *big.Int, *big.Int) {
 	return P, Q, G
 }
 
+type CustomDSAGenerator func() (*big.Int, *big.Int, *big.Int)
+
 type DSA struct {
 	P, Q, G *big.Int
 	// private key
@@ -29,9 +31,13 @@ type DSA struct {
 	Y *big.Int
 }
 
-func (d *DSA) GenerateKeys() error {
+func (d *DSA) GenerateKeys(f *CustomDSAGenerator) error {
 	var err error
-	d.P, d.Q, d.G = DSAGeneratePQG()
+	if f == nil {
+		d.P, d.Q, d.G = DSAGeneratePQG()
+	} else {
+		d.P, d.Q, d.G = (*f)()
+	}
 
 	d.x, err = rand.Int(rand.Reader, d.Q)
 	if err != nil {
