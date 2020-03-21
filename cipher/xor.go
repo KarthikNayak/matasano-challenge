@@ -4,6 +4,15 @@ import (
 	"cryptopals/helpers"
 )
 
+func EncodeRepeatingXor(data []byte, key []byte) ([]byte, error) {
+	outputBytes := make([]byte, len(data))
+	keyLength := len(key)
+	for i, val := range data {
+		outputBytes[i] = byte(val) ^ key[int(i)%keyLength]
+	}
+	return outputBytes, nil
+}
+
 func DecodeSingleByteXOR(b []byte) (float64, []byte) {
 	type result struct {
 		score float64
