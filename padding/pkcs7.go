@@ -1,14 +1,25 @@
 package padding
 
-func PKCS7(b []byte, l int) []byte {
-	var f []byte = make([]byte, l)
+func PKCS7(b []byte, blockSize int) []byte {
 
-	for i := 0; i < len(b); i++ {
-		f[i] = b[i]
+	srcLen := len(b)
+	padding := 0
+
+	if srcLen > blockSize {
+		extra := srcLen % blockSize
+		if extra > 0 {
+			padding = blockSize - extra
+		}
+	} else {
+		padding = blockSize - srcLen
 	}
 
-	for i := len(b); i < l; i++ {
-		f[i] = byte(l - len(b))
+	output := make([]byte, srcLen+padding)
+	copy(output, b)
+
+	for i := 0; i < padding; i++ {
+		output[srcLen+i] = byte(padding)
 	}
-	return f
+
+	return output
 }
