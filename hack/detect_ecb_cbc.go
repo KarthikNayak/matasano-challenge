@@ -2,16 +2,26 @@ package hack
 
 import (
 	"bytes"
-	"cryptopals/oracle"
+	"math/rand"
 )
 
-func DetectECB() bool {
+type oracleFunc func([]byte, []byte) []byte
+
+func random16BitKey() []byte {
+	b := make([]byte, 16)
+	nR := rand.New(rand.NewSource(13))
+	nR.Read(b)
+
+	return b
+}
+
+func DetectECB(o oracleFunc) bool {
 	data := make([]byte, 16*200)
 	for i := 0; i < len(data); i++ {
 		data[i] = 'a'
 	}
 
-	encrypted, _ := oracle.EncryptionECBCBCOracle(data)
+	encrypted := o(data, random16BitKey())
 
 	for i := 0; i < len(encrypted); i += 16 {
 		for j := i + 16; j < len(encrypted); j += 16 {

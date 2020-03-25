@@ -8,15 +8,7 @@ import (
 	"time"
 )
 
-func random16BitKey() []byte {
-	b := make([]byte, 16)
-	nR := rand.New(rand.NewSource(13))
-	nR.Read(b)
-
-	return b
-}
-
-func EncryptionECBCBCOracle(input []byte) ([]byte, error) {
+func EncryptionECBCBCOracle(input []byte, key []byte) []byte {
 	blockSizeBytes := 16
 
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -32,8 +24,6 @@ func EncryptionECBCBCOracle(input []byte) ([]byte, error) {
 
 	paddedData := padding.PKCS7(data, blockSizeBytes)
 
-	key := random16BitKey()
-
 	r := rand.Intn(2)
 	fmt.Println("rand number: ", r)
 
@@ -42,12 +32,8 @@ func EncryptionECBCBCOracle(input []byte) ([]byte, error) {
 		var e cipher.ECB
 		e.Init(key, blockSizeBytes*8)
 
-		encoded, err := e.Encode(paddedData)
-		if err != nil {
-			return []byte{}, err
-		}
-
-		return encoded, nil
+		encoded, _ := e.Encode(paddedData)
+		return encoded
 	}
 
 	fmt.Println("CBC mode")
@@ -59,10 +45,6 @@ func EncryptionECBCBCOracle(input []byte) ([]byte, error) {
 
 	c.Init(key, blockSizeBytes*8, IV)
 
-	encoded, err := c.Encode(paddedData)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return encoded, nil
+	encoded, _ := c.Encode(paddedData)
+	return encoded
 }
