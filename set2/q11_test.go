@@ -1,4 +1,4 @@
-package hack
+package set2
 
 import (
 	"cryptopals/oracle"
